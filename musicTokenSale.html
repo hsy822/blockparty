@@ -44,7 +44,7 @@
 
   var Web3 = require('web3');
   var web3 = new Web3();
-  web3.setProvider(new web3.providers.HttpProvider("http://172.16.77.116:8545"));
+  web3.setProvider(new web3.providers.HttpProvider("http://192.168.67.128:8545"));
   var contractAddress = '0x07643b732c6e9a6a8b7d50b9f6ab93e5e6c1f2c4';
   var contract = web3.eth.contract([
 	{
@@ -357,8 +357,15 @@ $(document).ready(function(){
     var userId = $(this).parents('td').siblings('.userId').html()
     console.log(userId)
     web3.eth.defaultAccount = adminAccount
-    contract.transfer(userId, 100)
-    redirect()
+    contract.transfer(userId, 100, function(error, res){
+      var repeat = setInterval(function(){
+        console.log("log: ", web3.eth.getTransaction(res))
+        if(web3.eth.getTransaction(res).blockNumber){
+          clearInterval(repeat)
+          redirect()
+        }
+      }, 1000)
+    })
   })
 
 })
