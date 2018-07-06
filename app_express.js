@@ -8,7 +8,7 @@ app.use('/lib', express.static(__dirname + "/lib"));
 var server = http.createServer(app).listen(3303, function() { console.log('Server 3303 port serverunning..')});
 
 app.get('/', function(req, res) {
-   fs.readFile('genesis.html', function(error, data) {
+   fs.readFile('musicTokenSale.html', function(error, data) {
       res.writeHead(200, { 'Content-Type':'text/html'});
       res.end(data);
       });

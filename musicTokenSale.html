@@ -13,11 +13,11 @@
 
 <body class="container">
     <div class="row">
-      <h1>GEN TOKEN SALE</h1>
+      <h1>MUSIC TOKEN SALE</h1>
       <div>
-        <span>전체 발행량 : </span>
+        <span>Total Supply : </span>
         <span id="totalSupply"></span>
-        <button type="button" name="button" id="btnNewAccount" class="btn btn-primary">계정 생성</button>
+        <button type="button" name="button" id="btnNewAccount" class="btn btn-primary">New Account</button>
       </div>
       <div class="table-responsive" style="margin-top: 10px">
         <table class="table table-bordered">
@@ -41,11 +41,11 @@
 </body>
 
 <script type="text/javascript">
-  // ico html 디자인에 google font와 w3 css를 사용했습니다.
+
   var Web3 = require('web3');
   var web3 = new Web3();
-  web3.setProvider(new web3.providers.HttpProvider("http://192.168.0.103:8545"));
-  var contractAddress = '0xc916286c2239dd63d7c8f4b6764693de2fc08427';
+  web3.setProvider(new web3.providers.HttpProvider("http://172.16.77.116:8545"));
+  var contractAddress = '0x07643b732c6e9a6a8b7d50b9f6ab93e5e6c1f2c4';
   var contract = web3.eth.contract([
 	{
 		"anonymous": false,
@@ -341,7 +341,7 @@ $(document).ready(function(){
   redirect()
 
   //전체 발행량을 보여준다.
-  $('#totalSupply').html(contract.totalSupply().c + " GEN")
+  $('#totalSupply').html(contract.totalSupply().c + " MUS")
 
   //계정을 생성한다.
   $('#btnNewAccount').on('click', function(){
@@ -355,6 +355,7 @@ $(document).ready(function(){
   //계정과 원하는 토큰의 양을 입력한다. 컨트랙트 호출하여 실제 전송해준다.
   $('.btnBuyToken').on('click', function(){
     var userId = $(this).parents('td').siblings('.userId').html()
+    console.log(userId)
     web3.eth.defaultAccount = adminAccount
     contract.transfer(userId, 100)
     redirect()
