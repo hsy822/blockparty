@@ -45,7 +45,7 @@
   var Web3 = require('web3');
   var web3 = new Web3();
   web3.setProvider(new web3.providers.HttpProvider("http://192.168.67.128:8545"));
-  var contractAddress = '0x07643b732c6e9a6a8b7d50b9f6ab93e5e6c1f2c4';
+  var contractAddress = '0xf6fa941b387c41ae3ce3863779b61c4705dd8b65';
   var contract = web3.eth.contract([
 	{
 		"anonymous": false,
@@ -355,14 +355,14 @@ $(document).ready(function(){
   //계정과 원하는 토큰의 양을 입력한다. 컨트랙트 호출하여 실제 전송해준다.
   $('.btnBuyToken').on('click', function(){
     var userId = $(this).parents('td').siblings('.userId').html()
-    console.log(userId)
+    console.log("userId: ", userId)
     web3.eth.defaultAccount = adminAccount
     contract.transfer(userId, 100, function(error, res){
       var repeat = setInterval(function(){
         console.log("log: ", web3.eth.getTransaction(res))
         if(web3.eth.getTransaction(res).blockNumber){
           clearInterval(repeat)
-          redirect()
+          location.reload()
         }
       }, 1000)
     })

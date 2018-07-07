@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript" src="./lib/web3.min.js"></script>
+<script src="http://code.jquery.com/jquery-latest.js "></script>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+ <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+
+<body class="container">
+    <div class="row">
+      <h1>MUSIC PLATFORM</h1>
+      <div>
+        <div>
+          Singer Name :
+          <input  type="text" id="singerName"/>
+          <button type="button" name="button" id="btnNewAccount" class="btn btn-primary">Add Singer</button>
+        </div>
+        <div style="margin-top: 50px">
+          <div style="margin-top: 20px">
+            Singer :
+            <select id="singerList">
+            </select>
+          </div>
+          <div style="margin-top: 20px">
+            Music Title :
+            <input type='text' id="musicTitle"/>
+          </div>
+          <div style="margin-top: 20px">
+            Music Price :
+            <input type='text' id="musicPrice" value="0"/>
+            <button type="button" name="button" id="addMusic" class="btn btn-primary">Add music</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive" style="margin-top: 50px">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>IDX</th>
+              <th>TITLE</th>
+              <th>SINGER NAME</th>
+              <th>SINGER ADDRESS</th>
+              <th>PRICE</th>
+              <th>PLAY</th>
+            </tr>
+          </thead>
+          <tbody id="dataBody">
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+
+var Web3 = require('web3');
+var web3 = new Web3();
+web3.setProvider(new web3.providers.HttpProvider("http://192.168.67.128:8545"));
+
+var contractAddress = '0xf6fa941b387c41ae3ce3863779b61c4705dd8b65';
+var contract = web3.eth.contract([
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "name": "_owner",
+      "type": "address"
+    },
+    {
+      "indexed": true,
+      "name": "_spender",
+      "type": "address"
+    },
+    {
+      "indexed": false,
+      "name": "_value",
+      "type": "uint256"
+    }
+  ],
+  "name": "Approval",
+  "type": "event"
+},
+{
+  "constant": false,
+  "inputs": [
+    {
+      "name": "_spender",
+      "type": "address"
+    },
+    {
+      "name": "_value",
+      "type": "uint256"
+    }
+  ],
+  "name": "approve",
+  "outputs": [
+    {
+      "name": "success",
+      "type": "bool"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "nonpayable",
+  "type": "function"
+},
+{
+  "constant": false,
+  "inputs": [
+    {
+      "name": "_spender",
+      "type": "address"
+    },
+    {
+      "name": "_value",
+      "type": "uint256"
+    },
+    {
+      "name": "_extraData",
+      "type": "bytes"
+    }
+  ],
+  "name": "approveAndCall",
+  "outputs": [
+    {
+      "name": "success",
+      "type": "bool"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "nonpayable",
+  "type": "function"
+},
+{
+  "constant": false,
+  "inputs": [
+    {
+      "name": "_to",
+      "type": "address"
+    },
+    {
+      "name": "_value",
+      "type": "uint256"
+    }
+  ],
+  "name": "transfer",
+  "outputs": [
+    {
+      "name": "success",
+      "type": "bool"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "nonpayable",
+  "type": "function"
+},
+{
+  "constant": false,
+  "inputs": [
+    {
+      "name": "_from",
+      "type": "address"
+    },
+    {
+      "name": "_to",
+      "type": "address"
+    },
+    {
+      "name": "_value",
+      "type": "uint256"
+    }
+  ],
+  "name": "transferFrom",
+  "outputs": [
+    {
+      "name": "success",
+      "type": "bool"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "nonpayable",
+  "type": "function"
+},
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "name": "_from",
+      "type": "address"
+    },
+    {
+      "indexed": true,
+      "name": "_to",
+      "type": "address"
+    },
+    {
+      "indexed": false,
+      "name": "_value",
+      "type": "uint256"
+    }
+  ],
+  "name": "Transfer",
+  "type": "event"
+},
+{
+  "inputs": [],
+  "payable": false,
+  "stateMutability": "nonpayable",
+  "type": "constructor"
+},
+{
+  "payable": false,
+  "stateMutability": "nonpayable",
+  "type": "fallback"
+},
+{
+  "constant": true,
+  "inputs": [
+    {
+      "name": "_owner",
+      "type": "address"
+    },
+    {
+      "name": "_spender",
+      "type": "address"
+    }
+  ],
+  "name": "allowance",
+  "outputs": [
+    {
+      "name": "remaining",
+      "type": "uint256"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "view",
+  "type": "function"
+},
+{
+  "constant": true,
+  "inputs": [
+    {
+      "name": "_owner",
+      "type": "address"
+    }
+  ],
+  "name": "balanceOf",
+  "outputs": [
+    {
+      "name": "balance",
+      "type": "uint256"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "view",
+  "type": "function"
+},
+{
+  "constant": true,
+  "inputs": [],
+  "name": "decimals",
+  "outputs": [
+    {
+      "name": "",
+      "type": "uint8"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "view",
+  "type": "function"
+},
+{
+  "constant": true,
+  "inputs": [],
+  "name": "name",
+  "outputs": [
+    {
+      "name": "",
+      "type": "string"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "view",
+  "type": "function"
+},
+{
+  "constant": true,
+  "inputs": [],
+  "name": "symbol",
+  "outputs": [
+    {
+      "name": "",
+      "type": "string"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "view",
+  "type": "function"
+},
+{
+  "constant": true,
+  "inputs": [],
+  "name": "totalSupply",
+  "outputs": [
+    {
+      "name": "",
+      "type": "uint256"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "view",
+  "type": "function"
+},
+{
+  "constant": true,
+  "inputs": [],
+  "name": "version",
+  "outputs": [
+    {
+      "name": "",
+      "type": "string"
+    }
+  ],
+  "payable": false,
+  "stateMutability": "view",
+  "type": "function"
+}
+]).at(contractAddress);
+
+
+var singerContractAddress = '0xf230ebce7948dacb62c95f5b83ac3948d4b2d9e0';
+var singerContract = web3.eth.contract([
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_singer",
+				"type": "address"
+			},
+			{
+				"name": "_singerName",
+				"type": "string"
+			}
+		],
+		"name": "addSinger",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_singer",
+				"type": "address"
+			},
+			{
+				"name": "_singerName",
+				"type": "string"
+			}
+		],
+		"name": "checkSinger",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_singer",
+				"type": "address"
+			},
+			{
+				"name": "_singerName",
+				"type": "string"
+			}
+		],
+		"name": "modifySingerName",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_singer",
+				"type": "address"
+			}
+		],
+		"name": "getSingerName",
+		"outputs": [
+			{
+				"name": "singerName",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+]).at(singerContractAddress);
+
+var musicContractAddress = '0xae930166bb1adb07b28477cb69225f88fe0baa70';
+var musicContract = web3.eth.contract([
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"name": "_singerAddr",
+				"type": "address"
+			},
+			{
+				"name": "_price",
+				"type": "uint256"
+			}
+		],
+		"name": "addMusic",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "previousOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipRenounced",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_singer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_musicNumber",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_price",
+				"type": "uint256"
+			}
+		],
+		"name": "enrolledMusic",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "singer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"name": "play",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_musicNumber",
+				"type": "uint256"
+			},
+			{
+				"name": "buyer",
+				"type": "address"
+			}
+		],
+		"name": "playMusic",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getLastMusicNumber",
+		"outputs": [
+			{
+				"name": "lastMusicNumber",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_musicNumber",
+				"type": "uint256"
+			}
+		],
+		"name": "getMusicInfo",
+		"outputs": [
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "singer",
+				"type": "address"
+			},
+			{
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+]).at(musicContractAddress);
+
+$(document).ready(function(){
+
+  var newAccount;
+  var singerArr = []
+  var singerAddArr = []
+  web3.eth.defaultAccount = web3.eth.accounts[0]
+
+  // 음원 목록을 보여준다.
+  let redirect = () => {
+    var lastMusicNumber = musicContract.getLastMusicNumber()
+    console.log("lastMusicNumber", lastMusicNumber.toNumber())
+
+    var tag;
+
+    for(var i=1; i<= lastMusicNumber; i++){
+      console.log(musicContract.getMusicInfo(i))
+      tag += "<tr>"
+      tag +=   "<td class='musicNumber'>"+i+"</td>"
+      tag +=   "<td>"+musicContract.getMusicInfo(i)[0]+"</td>"
+      tag +=   "<td>"+singerContract.getSingerName(musicContract.getMusicInfo(i)[1])+"</td>"
+      tag +=   "<td class='singer'>"+musicContract.getMusicInfo(i)[1]+"</td>"
+      tag +=   "<td class='price'>"+musicContract.getMusicInfo(i)[2]+"</td>"
+      tag +=   "<td>"
+      tag +=       '<select class="userList">'
+      tag +=       '</select>'
+      tag +=       '<button type="button" name="button" class="btn btn-primary playMusic">play</button>'
+      tag +=   '</td>'
+      tag += '</tr>'
+
+    }
+    $('#dataBody').append(tag)
+  }
+
+  redirect()
+
+  //singer 계정을 생성한다.
+  $('#btnNewAccount').on('click', function(){
+
+    newAccount = web3.personal.newAccount('1234')
+    web3.personal.unlockAccount(newAccount, '1234', 0)
+
+    //contract 의 singer 계정 함수 실행
+    singerContract.addSinger(newAccount, $('#singerName').val())
+
+  })
+
+  //singer 목록을 가져온다.
+  let singerList = () => {
+    var accounts = web3.eth.accounts
+
+    var acc =''
+    singerArr = []
+    singerAddArr = []
+
+    accounts.map(function(item){
+      acc = singerContract.getSingerName(item)
+      if(acc){
+       singerArr.push(acc)
+       singerAddArr.push(item)
+      }
+    })
+
+    var list = ''
+    var singerNm = ''
+
+    singerArr.map(function(item, i){
+      list += "<option value='"+singerAddArr[i]+"'>"+item+"</option>"
+    })
+    $('#singerList').html(list)
+  }
+
+  //전체 목록을 가져온다.
+  let userList = () => {
+    var accounts = web3.eth.accounts
+    var list = ''
+    accounts.map(function(item){
+      list += "<option value='"+item+"'>"+item+"</option>"
+    })
+    $('.userList').html(list)
+  }
+
+  singerList()
+  userList()
+
+  //music 등록 버튼 클릭 시
+  $('#addMusic').on('click', function(){
+
+    //select box의 singer 계정과 title를 참조하여 contract의 함수 호출
+    console.log($("#singerList option:selected").val())
+    console.log($('#musicTitle').val())
+    //
+    web3.eth.defaultAccount = web3.eth.accounts[0]
+    // web3.eth.defaultAccount = $("#singerList option:selected").val()
+    //
+    var a = musicContract.addMusic($('#musicTitle').val(), $("#singerList option:selected").val(), $("#musicPrice").val(), {from: web3.eth.accounts[0], gas: 200000})
+
+    console.log(a)
+
+  })
+
+  //play 버튼 클릭 시
+  $('.playMusic').on('click', function(){
+    //select box의 사용자 계정(buyer)과 해당 play버튼과 같은 열의 singer 계정을 참조하여 contract의 transfer 실행
+    var buyer = $(this).siblings('.userList').val()
+    console.log("buyer: ", buyer)
+
+    var musicNumber = $(this).parents('td').siblings('.musicNumber').text()
+    console.log("musicNumber: ", musicNumber)
+
+    var price = $(this).parents('td').siblings('.price').text()
+    console.log("price: ", price)
+
+    var singer= $(this).parents('td').siblings('.singer').text()
+    console.log("singer: ", singer)
+
+    contract.transferFrom(buyer, singer, price, function(error, res){
+      var repeat = setInterval(function(){
+        console.log("log: ", web3.eth.getTransaction(res))
+        if(web3.eth.getTransaction(res).blockNumber){
+          clearInterval(repeat)
+          // location.reload()
+        }
+      }, 1000)
+    })
+
+   //  function playMusic(uint _musicNumber, address buyer) public {
+   //     MusicInfo memory info = enrolledMusics[_musicNumber];
+   //     ERC20Token(tokenAddr).transferFrom(buyer, info.singerAddr, info.price);
+   //     emit play(info.singerAddr, info.price);
+   // }
+   //
+   // function getMusicInfo(uint _musicNumber) public view returns(string name, address singer, uint price) {
+   //     MusicInfo memory info = enrolledMusics[_musicNumber];
+   //     return (info.name, info.singerAddr, info.price);
+   // }
+
+    // var a = musicContract.playMusic(musicNumber, buyer, {from: web3.eth.accounts[0], gas: 2000000})
+    //
+    // var repeat = setInterval(function(){
+    //   console.log(web3.eth.getTransaction(a))
+    //   if(web3.eth.getTransaction(a).blockNumber){
+    //     console.log(web3.eth.getTransaction(a))
+    //     clearInterval(repeat)
+    //   }
+    // }, 1000)
+
+    // console.log(a)
+  })
+
+
+})
+
+</script>
+
+</html>
